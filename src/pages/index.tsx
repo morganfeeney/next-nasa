@@ -1,16 +1,16 @@
-import type { NextPage } from 'next'
-import {FC, useEffect, useState, useMemo} from "react";
+import {FC, useEffect, useState} from "react";
 import Head from 'next/head'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { InferGetServerSidePropsType } from 'next'
 import {API_URL} from 'lib/consts'
 
 import styles from 'styles/Home.module.css'
 
 interface Fetcher {
-    searchQuery: string;
-    queryParam: {text: string};
+    queryParam: string;
+}
+
+interface Query {
+    query: { text: string }
 }
 
 interface NasaData {
@@ -30,26 +30,41 @@ interface NasaData {
     }
 }
 
-const Home = ({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+interface SearchPageProps {
+    data: {text: string}
+}
+
+const Home: FC<SearchPageProps> = ({ data }) => {
     const router = useRouter()
+
+    // Used to fetch the data
     const [searchQuery, updateSearchQuery] = useState(data.text)
+
+    // The data returned
     const [searchData, updateSearchData] = useState<NasaData>({})
+
+    // Used to submit the data to fetch
+    const [query, setQuery] = useState('')
+
     useEffect( () => {
-        const fetchData = async ({searchQuery, queryParam}: Fetcher) => {
-            if (searchQuery !== '') {
-                const url = `${API_URL}/search?&media_type=image&q=${queryParam}&page=1`
-                const res = await fetch(url)
-                const data = await res.json()
-                updateSearchData(data)
-            }
+        const fetchData = async ({queryParam}: Fetcher) => {
+            const url = `${API_URL}/search?&media_type=image&q=${queryParam}&page=1`
+            const res = await fetch(url)
+            const data = await res.json()
+            updateSearchData(data)
         }
-        fetchData({searchQuery, queryParam: searchQuery})
-        }, []
+        if (query !== '') {
+            fetchData({queryParam: query})
+        }
+        }, [query]
     )
+
     console.log({searchQuery, searchData})
+
     useEffect(() => {
-        if (searchQuery) router.push(`?text=${searchQuery}`)
-    }, [searchQuery])
+        if (query) router.push(`?text=${searchQuery}`)
+        else router.push('/')
+    }, [query])
 
   return (
     <div className={styles.container}>
@@ -62,19 +77,20 @@ const Home = ({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) 
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
-        <input type="search" onChange={(event) => updateSearchQuery(event.target.value)}/>
+        <input type="search" onChange={(event) => updateSearchQuery(event.target.value)} />
+          <button type="button" onClick={() => setQuery(searchQuery)}>
+              Search
+          </button>
       </main>
-        {console.log({searchData})}
-        {searchData && searchData?.collection?.items?.map((item) => item.links?.map((item) => <img height={100} width={100} src={item.href}/>))}
-        {searchData && searchData?.collection?.items?.map((item) => console.log(item.href))}
+        {searchData && searchData?.collection?.items?.map((item) => item.links?.map((item) => <img loading={'lazy'} height={100} width={100} src={item.href}/>))}
         <footer className={styles.footer}>
-
+            <h1>footer</h1>
       </footer>
     </div>
   )
 }
 
-export const getServerSideProps = async (context: { query: string; }) => {
+export const getServerSideProps = async (context: Query) => {
   const {query} = context
   console.log({query})
   return {
