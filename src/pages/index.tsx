@@ -1,70 +1,81 @@
-import {FC, useEffect, useState} from "react";
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import {API_URL} from 'lib/consts'
+import { FC, useEffect, useState } from 'react';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { API_URL } from 'lib/consts';
 
-import styles from 'styles/Home.module.css'
+import styles from 'styles/Home.module.css';
 
 interface Fetcher {
-    queryParam: string;
+  queryParam: string;
 }
 
 interface Query {
-    query: { text: string }
+  query: { text: string };
 }
 
 interface NasaData {
-    collection?: {
+  collection?: {
+    href: string;
+    items: {
+      data: {
+        center: string;
+        title: string;
+      }[];
+      href: string;
+      links: {
         href: string;
-        items: {
-            data: {
-                center: string;
-            }[]
-            href: string;
-            links: {
-                href: string;
-                rel: string;
-                render: string;
-            }[]
-        }[]
-    }
+        rel: string;
+        render: string;
+      }[];
+    }[];
+  };
 }
 
 interface SearchPageProps {
-    data: {text: string}
+  query: { text: string };
+  data: NasaData;
 }
 
-const Home: FC<SearchPageProps> = ({ data }) => {
-    const router = useRouter()
+const Home: FC<SearchPageProps> = ({ data, query }) => {
+  const router = useRouter();
 
-    // Used to fetch the data
-    const [searchQuery, updateSearchQuery] = useState(data.text)
+  // Used to fetch the data
+  const [searchQuery, updateSearchQuery] = useState(query.text);
 
-    // The data returned
-    const [searchData, updateSearchData] = useState<NasaData>({})
+  // The data returned
+  const [searchData, updateSearchData] = useState(data);
 
-    // Used to submit the data to fetch
-    const [query, setQuery] = useState('')
+  // Used to submit the data to fetch
+  const [clientQuery, setClientQuery] = useState(searchQuery);
 
-    useEffect( () => {
-        const fetchData = async ({queryParam}: Fetcher) => {
-            const url = `${API_URL}/search?&media_type=image&q=${queryParam}&page=1`
-            const res = await fetch(url)
-            const data = await res.json()
-            updateSearchData(data)
-        }
-        if (query !== '') {
-            fetchData({queryParam: query})
-        }
-        }, [query]
-    )
+  useEffect(() => {
+    const fetchData = async ({ queryParam }: Fetcher) => {
+      if (queryParam === '' || searchQuery === undefined) {
+        console.log('empty');
+        updateSearchData({});
+        return;
+      }
+      console.log('not empty');
+      const url = `${API_URL}/search?&media_type=image&q=${encodeURIComponent(
+        queryParam
+      )}&page=1`;
+      console.log({ url });
+      const res = await fetch(url);
+      const data = await res.json();
+      updateSearchData(data);
+    };
+    fetchData({ queryParam: searchQuery });
+  }, [clientQuery]);
 
-    console.log({searchQuery, searchData})
+  console.log({ searchQuery, searchData, query });
 
-    useEffect(() => {
-        if (query) router.push(`?text=${searchQuery}`)
-        else router.push('/')
-    }, [query])
+  useEffect(() => {
+    router.push(searchQuery ? `?text=${searchQuery}` : '');
+    setClientQuery(searchQuery);
+  }, [clientQuery]);
+  console.log({ data });
+
+  const items = searchData?.collection?.items;
 
   return (
     <div className={styles.container}>
@@ -74,30 +85,72 @@ const Home: FC<SearchPageProps> = ({ data }) => {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-        <input type="search" onChange={(event) => updateSearchQuery(event.target.value)} />
-          <button type="button" onClick={() => setQuery(searchQuery)}>
-              Search
-          </button>
+        <h1 className={styles.title}>Welcome to Nasa Search</h1>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            setClientQuery(searchQuery);
+          }}
+        >
+          <input
+            type="search"
+            onChange={(event) => updateSearchQuery(event.target.value)}
+          />
+          <button type={'submit'}>Search</button>
+        </form>
+        <section className={styles.results}>
+          {console.log({ itemsBool: items === [], items })}
+          {items?.length === 0 ? (
+            <h1>No results were found, please search again</h1>
+          ) : (
+            items?.map(({ data, href, links }) => (
+              <img
+                alt={data[0]?.title}
+                key={links[0]?.href}
+                loading={'lazy'}
+                height={100}
+                width={100}
+                src={links[0]?.href}
+              />
+            ))
+          )}
+        </section>
       </main>
-        {searchData && searchData?.collection?.items?.map((item) => item.links?.map((item) => <img loading={'lazy'} height={100} width={100} src={item.href}/>))}
-        <footer className={styles.footer}>
-            <h1>footer</h1>
+      <footer className={styles.footer}>
+        <h1>footer</h1>
       </footer>
     </div>
-  )
-}
+  );
+};
 
 export const getServerSideProps = async (context: Query) => {
-  const {query} = context
-  console.log({query})
+  const { query } = context;
+  if (query.text !== undefined) {
+    const url = `${API_URL}/search?&media_type=image&q=${encodeURIComponent(
+      query.text
+    )}&page=1`;
+    const res = await fetch(url);
+    const data = await res.json();
+    console.log({
+      query,
+      url,
+      data,
+      test: query !== undefined,
+    });
+    return {
+      props: {
+        query,
+        data,
+      },
+    };
+  }
+  console.log('didnt fetch');
   return {
     props: {
-      data: query,
+      query,
+      data: null,
     },
-  }
-}
+  };
+};
 
-export default Home
+export default Home;
