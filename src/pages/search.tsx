@@ -4,19 +4,11 @@ import { useRouter } from 'next/router';
 import { IMAGES_URL } from 'lib/consts';
 import Template from 'components/template/Template';
 import styles from 'styles/Home.module.css';
-import { NasaData } from './types';
-
-interface Fetcher {
-  queryParam: string;
-}
-
-interface Query {
-  query: { text: string };
-}
+import { NasaSearchData, Fetcher, SearchQuery } from 'lib/types';
 
 interface SearchPageProps {
   query: { text: string };
-  data: NasaData;
+  data: NasaSearchData;
 }
 
 const Home: FC<SearchPageProps> = ({ data, query }) => {
@@ -34,7 +26,7 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
   useEffect(() => {
     const fetchData = async ({ queryParam }: Fetcher) => {
       if (queryParam === '' || searchQuery === undefined) {
-        updateSearchData({} as NasaData);
+        updateSearchData({} as NasaSearchData);
         return;
       }
       const url = `${IMAGES_URL}/search?&media_type=image&q=${encodeURIComponent(
@@ -106,7 +98,7 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
   );
 };
 
-export const getServerSideProps = async (context: Query) => {
+export const getServerSideProps = async (context: SearchQuery) => {
   const { query } = context;
   if (query.text) {
     const url = `${IMAGES_URL}/search?&media_type=image&q=${encodeURIComponent(
@@ -115,7 +107,7 @@ export const getServerSideProps = async (context: Query) => {
     const res = await fetch(url);
     const data = await res.json();
     const title = 'Nasa Search';
-
+    console.log({ url });
     return {
       props: {
         title,

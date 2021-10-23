@@ -3,21 +3,13 @@ import { IMAGES_URL, ASSETS_URL } from 'lib/consts';
 import Template from 'components/template/Template';
 import styles from 'styles/Home.module.css';
 
-import { NasaData } from '../types';
-
-interface Query {
-  query: { id: string };
-}
+import { getAnyImageExceptTif } from 'lib/utils';
+import type { IdQuery, NasaImageData } from 'lib/types';
 
 interface AssetPageProps {
-  data: NasaData;
-  query: Query['query'];
+  data: NasaImageData;
+  query: IdQuery['query'];
 }
-
-const getAnyImageExceptTif = (data: NasaData, query: Query['query']) =>
-  data.collection?.items.filter(
-    (item) => item.href.split('/').pop() !== `${query.id}~orig.tif`
-  );
 
 const Id: FC<AssetPageProps> = ({ data, query }) => {
   console.log({ data });
@@ -35,28 +27,31 @@ const Id: FC<AssetPageProps> = ({ data, query }) => {
   );
 };
 
-export const getServerSideProps = async (context: Query) => {
+export const getServerSideProps = async (context: IdQuery) => {
   const { query } = context;
+
   if (query.id) {
     const imageUrl = `${IMAGES_URL}/asset/${encodeURIComponent(query.id)}`;
     const imageRes = await fetch(imageUrl);
     const imageData = await imageRes.json();
-    console.log({ imageData });
-    if (imageData.reason) {
+
+    if (imageData.reason || !imageData) {
       return {
         notFound: true,
       };
     }
+
     const metaUrl = `${ASSETS_URL}/image/${encodeURIComponent(
       query.id
     )}/metadata.json`;
     const metaRes = await fetch(metaUrl);
     const metaData = await metaRes.json();
+
     const title = metaData?.['XMP:Title'];
     const description = metaData?.['XMP:Description'];
     const imageWidth = metaData?.['File:ImageWidth'];
     const imageHeight = metaData?.['File:ImageHeight'];
-    console.log({ metaData });
+
     return {
       props: {
         title,
