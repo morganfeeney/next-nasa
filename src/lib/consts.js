@@ -1,3 +1,4 @@
 module.exports = {
-    API_URL: process.env.NEXT_PUBLIC_API_URL
-}
+  IMAGES_URL: process.env.NEXT_PUBLIC_IMAGES_URL,
+  ASSETS_URL: process.env.NEXT_PUBLIC_ASSETS_URL,
+};
