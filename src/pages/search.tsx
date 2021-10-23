@@ -82,7 +82,9 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
         </form>
         <section className={styles.results}>
           {items?.length === 0 ? (
-            <h1>No results were found, please search again</h1>
+            <h2 className={styles.noResultsHeading}>
+              No results were found, please search again
+            </h2>
           ) : (
             items?.map(({ data, href, links }) => {
               const nasaLink = links[0];
