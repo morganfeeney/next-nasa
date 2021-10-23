@@ -4,7 +4,7 @@ import { IMAGES_URL, ASSETS_URL } from 'lib/consts';
 
 import styles from 'styles/Home.module.css';
 
-import { NasaData } from './types';
+import { NasaData } from '../types';
 
 interface Query {
   query: { id: string };
@@ -12,9 +12,15 @@ interface Query {
 
 interface AssetPageProps {
   data: NasaData;
+  query: Query['query'];
 }
 
-const Id: FC<AssetPageProps> = ({ data }) => {
+const getAnyImageExceptTif = (data: NasaData, query: Query['query']) =>
+  data.collection?.items.filter(
+    (item) => item.href.split('/').pop() !== `${query.id}~orig.tif`
+  );
+
+const Id: FC<AssetPageProps> = ({ data, query }) => {
   console.log({ data });
   const title = data?.['XMP:Title'];
   const description = data?.['XMP:Description'];
@@ -28,7 +34,7 @@ const Id: FC<AssetPageProps> = ({ data }) => {
       <main className={styles.main}>
         <h1 className={styles.title}>{title}</h1>
         <p>{description}</p>
-        <img src={data.collection?.items[0].href} alt="" />
+        <img src={getAnyImageExceptTif(data, query)?.[0].href} alt="" />
       </main>
       <footer className={styles.footer}>
         <h1>footer</h1>
