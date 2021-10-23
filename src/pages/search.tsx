@@ -1,8 +1,8 @@
 import { FC, useEffect, useState } from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { IMAGES_URL } from 'lib/consts';
+import Template from 'components/template/Template';
 import styles from 'styles/Home.module.css';
 import { NasaData } from './types';
 
@@ -57,63 +57,52 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
   const items = searchData?.collection?.items;
 
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Nasa search</title>
-        <meta name="description" content="Nasa search page" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>Nasa Search</h1>
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            setClientQuery(searchQuery);
-          }}
-        >
-          <input
-            className={styles.input}
-            type="search"
-            onChange={(event) => updateSearchQuery(event.target.value)}
-          />
-          <button className={styles.button} type={'submit'}>
-            Search
-          </button>
-        </form>
-        <section className={styles.results}>
-          {items?.length === 0 ? (
-            <h2 className={styles.noResultsHeading}>
-              No results were found, please search again
-            </h2>
-          ) : (
-            items?.map(({ data, href, links }) => {
-              const nasaLink = links[0];
-              const nasaData = data[0];
-              return (
-                <Link
-                  key={nasaLink?.href}
-                  href={`/asset/${encodeURIComponent(nasaData?.nasa_id)}`}
-                >
-                  <a className={styles.thumbWrapper}>
-                    <img
-                      className={styles.thumb}
-                      alt={nasaData?.title}
-                      loading={'lazy'}
-                      height={1000}
-                      width={1000}
-                      src={nasaLink?.href}
-                    />
-                  </a>
-                </Link>
-              );
-            })
-          )}
-        </section>
-      </main>
-      <footer className={styles.footer}>
-        <h1>footer</h1>
-      </footer>
-    </div>
+    <Template title={data?.title}>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          setClientQuery(searchQuery);
+        }}
+      >
+        <input
+          className={styles.input}
+          type="search"
+          onChange={(event) => updateSearchQuery(event.target.value)}
+        />
+        <button className={styles.button} type={'submit'}>
+          Search
+        </button>
+      </form>
+      <section className={styles.results}>
+        {items?.length === 0 ? (
+          <h2 className={styles.noResultsHeading}>
+            No results were found, please search again
+          </h2>
+        ) : (
+          items?.map(({ data, links }) => {
+            const nasaLink = links[0];
+            const nasaData = data[0];
+            return (
+              <Link
+                key={nasaLink?.href}
+                href={`/asset/${encodeURIComponent(nasaData?.nasa_id)}`}
+              >
+                <a className={styles.thumbWrapper}>
+                  <img
+                    className={styles.thumb}
+                    alt={nasaData?.title}
+                    loading={'lazy'}
+                    height={1000}
+                    width={1000}
+                    src={nasaLink?.href}
+                  />
+                </a>
+              </Link>
+            );
+          })
+        )}
+      </section>
+    </Template>
   );
 };
 
@@ -125,10 +114,16 @@ export const getServerSideProps = async (context: Query) => {
     )}&page=1`;
     const res = await fetch(url);
     const data = await res.json();
+    const title = 'Nasa Search';
+
     return {
       props: {
+        title,
         query,
-        data,
+        data: {
+          ...data,
+          title,
+        },
       },
     };
   }

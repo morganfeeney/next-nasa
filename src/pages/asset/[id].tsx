@@ -1,7 +1,6 @@
 import { FC } from 'react';
-import Head from 'next/head';
 import { IMAGES_URL, ASSETS_URL } from 'lib/consts';
-
+import Template from 'components/template/Template';
 import styles from 'styles/Home.module.css';
 
 import { NasaData } from '../types';
@@ -22,32 +21,17 @@ const getAnyImageExceptTif = (data: NasaData, query: Query['query']) =>
 
 const Id: FC<AssetPageProps> = ({ data, query }) => {
   console.log({ data });
-  const title = data?.['XMP:Title'];
-  const description = data?.['XMP:Description'];
-  const imageWidth = data?.['File:ImageWidth'];
-  const imageHeight = data?.['File:ImageHeight'];
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>{title}</title>
-        <meta name="description" content={description} />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>{title}</h1>
-        <p>{description}</p>
-        <img
-          className={styles.mainImage}
-          src={getAnyImageExceptTif(data, query)?.[0].href}
-          alt=""
-          width={imageWidth}
-          height={imageHeight}
-        />
-      </main>
-      <footer className={styles.footer}>
-        <h1>footer</h1>
-      </footer>
-    </div>
+    <Template title={data?.title}>
+      <p>{data?.description}</p>
+      <img
+        className={styles.mainImage}
+        src={getAnyImageExceptTif(data, query)?.[0].href}
+        alt=""
+        width={data?.imageWidth}
+        height={data?.imageHeight}
+      />
+    </Template>
   );
 };
 
@@ -68,10 +52,23 @@ export const getServerSideProps = async (context: Query) => {
     )}/metadata.json`;
     const metaRes = await fetch(metaUrl);
     const metaData = await metaRes.json();
+    const title = metaData?.['XMP:Title'];
+    const description = metaData?.['XMP:Description'];
+    const imageWidth = metaData?.['File:ImageWidth'];
+    const imageHeight = metaData?.['File:ImageHeight'];
+    console.log({ metaData });
     return {
       props: {
+        title,
+        description,
         query,
-        data: { ...imageData, ...metaData },
+        data: {
+          ...imageData,
+          title,
+          description,
+          imageWidth: imageWidth || null,
+          imageHeight: imageHeight || null,
+        },
       },
     };
   }
