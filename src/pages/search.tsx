@@ -23,23 +23,31 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
   // Final query used to submit the data to fetch via form submission
   const [clientQuery, setClientQuery] = useState(searchQuery);
 
+  // Set up for pagination
+  const [currentPage, setCurrentPage] = useState(1);
+
   useEffect(() => {
     const fetchData = async ({ queryParam }: Fetcher) => {
       if (queryParam === '' || searchQuery === undefined) {
         updateSearchData({} as NasaSearchData);
         return;
       }
-      const url = `${IMAGES_URL}/search?&media_type=image&q=${encodeURIComponent(
-        queryParam
-      )}&page=1`;
-      const res = await fetch(url);
-      const data = await res.json();
-      updateSearchData(data);
+      try {
+        const res = await fetch(
+          `${IMAGES_URL}/search?&media_type=image&q=${encodeURIComponent(
+            searchQuery
+          )}&page=${currentPage}`
+        );
+        const fetchData = await res.json();
+        updateSearchData(fetchData);
+      } catch (error) {
+        console.log({ error });
+      }
     };
     fetchData({ queryParam: searchQuery });
-  }, [clientQuery]);
+  }, [clientQuery, currentPage]);
 
-  console.log({ searchQuery, searchData, query });
+  // console.log({ searchQuery, searchData, query });
 
   useEffect(() => {
     router.push(searchQuery ? `?text=${searchQuery}` : '');
@@ -47,9 +55,24 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
   }, [clientQuery]);
 
   const items = searchData?.collection?.items;
-
+  console.log({ data, links: data?.collection?.links });
   return (
     <Template title={data?.title}>
+      {data?.collection && (
+        <>
+          <p>You are currently viewing page {currentPage}</p>
+          <button onClick={() => setCurrentPage(currentPage + 1)}>
+            Next page
+          </button>
+          <button
+            onClick={() =>
+              setCurrentPage(currentPage > 1 ? currentPage - 1 : 1)
+            }
+          >
+            Prev page
+          </button>
+        </>
+      )}
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -100,29 +123,46 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
 
 export const getServerSideProps = async (context: SearchQuery) => {
   const { query } = context;
+  const title = 'Nasa Search';
   if (query.text) {
-    const url = `${IMAGES_URL}/search?&media_type=image&q=${encodeURIComponent(
-      query.text
-    )}&page=1`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const title = 'Nasa Search';
-    console.log({ url });
-    return {
-      props: {
-        title,
-        query,
-        data: {
-          ...data,
+    try {
+      const url = `${IMAGES_URL}/search?&media_type=image&q=${encodeURIComponent(
+        query.text
+      )}&page=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+      console.log({ url, data });
+      return {
+        props: {
           title,
+          query,
+          data: {
+            ...data,
+            title,
+          },
         },
-      },
-    };
+      };
+    } catch (error) {
+      console.log({ error });
+      return {
+        props: {
+          title,
+          query,
+          error: true,
+          data: {
+            title,
+          },
+        },
+      };
+    }
   }
   return {
     props: {
+      title,
       query,
-      data: null,
+      data: {
+        title,
+      },
     },
   };
 };
