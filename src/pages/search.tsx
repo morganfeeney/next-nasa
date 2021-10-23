@@ -72,10 +72,13 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
           }}
         >
           <input
+            className={styles.input}
             type="search"
             onChange={(event) => updateSearchQuery(event.target.value)}
           />
-          <button type={'submit'}>Search</button>
+          <button className={styles.button} type={'submit'}>
+            Search
+          </button>
         </form>
         <section className={styles.results}>
           {items?.length === 0 ? (
@@ -89,14 +92,15 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
                   key={nasaLink?.href}
                   href={`/asset/${encodeURIComponent(nasaData?.nasa_id)}`}
                 >
-                  <a>
+                  <a className={styles.thumbWrapper}>
                     <img
+                      className={styles.thumb}
                       alt={nasaData?.title}
                       loading={'lazy'}
-                      height={100}
-                      width={100}
+                      height={1000}
+                      width={1000}
                       src={nasaLink?.href}
-                    />{' '}
+                    />
                   </a>
                 </Link>
               );

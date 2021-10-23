@@ -24,6 +24,8 @@ const Id: FC<AssetPageProps> = ({ data, query }) => {
   console.log({ data });
   const title = data?.['XMP:Title'];
   const description = data?.['XMP:Description'];
+  const imageWidth = data?.['File:ImageWidth'];
+  const imageHeight = data?.['File:ImageHeight'];
   return (
     <div className={styles.container}>
       <Head>
@@ -34,7 +36,13 @@ const Id: FC<AssetPageProps> = ({ data, query }) => {
       <main className={styles.main}>
         <h1 className={styles.title}>{title}</h1>
         <p>{description}</p>
-        <img src={getAnyImageExceptTif(data, query)?.[0].href} alt="" />
+        <img
+          className={styles.mainImage}
+          src={getAnyImageExceptTif(data, query)?.[0].href}
+          alt=""
+          width={imageWidth}
+          height={imageHeight}
+        />
       </main>
       <footer className={styles.footer}>
         <h1>footer</h1>

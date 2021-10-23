@@ -1,6 +1,8 @@
 export interface NasaData {
   'XMP:Title': string;
   'XMP:Description': string;
+  'File:ImageHeight': number;
+  'File:ImageWidth': number;
   collection?: {
     href: string;
     items: {
