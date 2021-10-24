@@ -20,7 +20,7 @@ type searchCollection = {
   }[];
 };
 
-type imageCollection = {
+export type imageCollection = {
   href: string;
   items: {
     href: string;

@@ -12,13 +12,12 @@ interface AssetPageProps {
 }
 
 const Id: FC<AssetPageProps> = ({ data, query }) => {
-  console.log({ data });
   return (
     <Template title={data?.title}>
       <p>{data?.description}</p>
       <img
         className={styles.mainImage}
-        src={getAnyImageExceptTif(data, query)?.[0].href}
+        src={getAnyImageExceptTif(data?.collection.items, query)?.[0].href}
         alt=""
         width={data?.imageWidth}
         height={data?.imageHeight}

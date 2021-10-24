@@ -1,9 +1,7 @@
-import { NasaImageData, IdQuery } from 'lib/types';
+import { imageCollection, IdQuery } from 'lib/types';
 
 export const getAnyImageExceptTif = (
-  data: NasaImageData,
+  data: imageCollection['items'],
   query: IdQuery['query']
 ) =>
-  data.collection?.items.filter(
-    (item) => item.href.split('/').pop() !== `${query.id}~orig.tif`
-  );
+  data.filter((item) => item.href.split('/').pop() !== `${query.id}~orig.tif`);

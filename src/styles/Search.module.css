@@ -122,4 +122,5 @@
 
 .mainImage {
   background: var(--placeholder-bg);
+  margin-bottom: 3rem;
 }

@@ -146,8 +146,9 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
 
 export const getServerSideProps = async (context: SearchQuery) => {
   const { query } = context;
-  console.log({ query });
+
   const title = 'Nasa Search';
+
   if (query.text) {
     try {
       const url = `${IMAGES_URL}/search?&media_type=image&q=${encodeURIComponent(
@@ -155,7 +156,7 @@ export const getServerSideProps = async (context: SearchQuery) => {
       )}&page=${query.page || 1}`;
       const res = await fetch(url);
       const data = await res.json();
-      console.log({ url, data });
+
       return {
         props: {
           title,
@@ -170,6 +171,7 @@ export const getServerSideProps = async (context: SearchQuery) => {
       console.log({ error });
     }
   }
+
   return {
     props: {
       title,
