@@ -54,13 +54,7 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
   }, [clientQuery, currentPage]);
 
   const items = searchData?.collection?.items;
-  console.log({
-    currentPage,
-    test: currentPage + 1,
-    test2: Number(query.page),
-    data,
-    links: data?.collection?.links,
-  });
+
   return (
     <Template title={data?.title}>
       <form
@@ -70,7 +64,7 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
           setCurrentPage(1);
         }}
       >
-        <label htmlFor={'search'}>
+        <label className={styles.searchInputWrapper} htmlFor={'search'}>
           <span className={styles.visuallyHidden}>Search</span>
           <input
             id={'search'}
@@ -115,23 +109,35 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
           })
         )}
       </section>
-      {data?.collection && items?.length > 0 && (
+      {items?.length > 0 && (
         <aside className={styles.stickyPagination}>
-          <p>You are currently viewing page {currentPage}</p>
-          <button
-            className={classNames(styles.button, styles.buttonDefault)}
-            onClick={() =>
-              setCurrentPage(currentPage > 1 ? currentPage - 1 : 1)
-            }
-          >
-            Prev page
-          </button>
-          <button
-            className={classNames(styles.button, styles.buttonDefault)}
-            onClick={() => setCurrentPage(currentPage + 1)}
-          >
-            Next page
-          </button>
+          <p className={styles.paginationHeading}>
+            You are currently viewing page {currentPage}
+          </p>
+          <div className={styles.paginationButtonsWrapper}>
+            <button
+              className={classNames(styles.button, styles.buttonDefault, {
+                [styles.disabled]: !searchData.collection.links?.find(
+                  (item) => item.rel === 'prev'
+                ),
+              })}
+              onClick={() =>
+                setCurrentPage(currentPage > 1 ? currentPage - 1 : 1)
+              }
+            >
+              Prev page
+            </button>
+            <button
+              className={classNames(styles.button, styles.buttonDefault, {
+                [styles.disabled]: !searchData.collection.links?.find(
+                  (item) => item.rel === 'next'
+                ),
+              })}
+              onClick={() => setCurrentPage(currentPage + 1)}
+            >
+              Next page
+            </button>
+          </div>
         </aside>
       )}
     </Template>

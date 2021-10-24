@@ -1,16 +1,20 @@
 .container {
-  padding: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
   display: grid;
 }
 
 .main {
-  padding: 5rem 0;
   display: grid;
   grid-row-gap: 2rem;
   place-items: center;
   max-width: 1024px;
   justify-self: center;
   text-align: center;
+}
+
+.main:first-child {
+  margin-top: 5rem;
 }
 
 .footer {
