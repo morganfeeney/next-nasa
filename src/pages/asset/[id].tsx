@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { IMAGES_URL, ASSETS_URL } from 'lib/consts';
 import Template from 'components/template/Template';
-import styles from 'styles/Home.module.css';
+import styles from 'styles/Search.module.css';
 
 import { getAnyImageExceptTif } from 'lib/utils';
 import type { IdQuery, NasaImageData } from 'lib/types';
@@ -54,13 +54,13 @@ export const getServerSideProps = async (context: IdQuery) => {
 
     return {
       props: {
-        title,
-        description,
+        title: title || null,
+        description: description || null,
         query,
         data: {
           ...imageData,
-          title,
-          description,
+          title: title || null,
+          description: description || null,
           imageWidth: imageWidth || null,
           imageHeight: imageHeight || null,
         },

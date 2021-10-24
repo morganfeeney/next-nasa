@@ -51,5 +51,5 @@ export interface Fetcher {
 }
 
 export interface SearchQuery {
-  query: { text: string };
+  query: { text: string; page?: number };
 }

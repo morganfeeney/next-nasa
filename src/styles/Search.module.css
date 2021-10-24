@@ -1,0 +1,95 @@
+.results {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 1rem;
+}
+
+@media (min-width: 600px) {
+  .results {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.input {
+  padding: 0.5rem;
+  font-size: inherit;
+  appearance: none;
+  border: 1px solid #ccc;
+  height: 3rem;
+  border-radius: 0.5rem;
+}
+
+.button {
+  display: inline-block;
+  margin-bottom: 0;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+  cursor: pointer;
+  background-image: none;
+  border: 1px solid transparent;
+  padding: 6px 12px;
+  font-size: 1rem;
+  line-height: 1.42857143;
+  border-radius: 4px;
+  user-select: none;
+}
+
+.buttonDefault {
+  color: var(--button-default-color);
+  background-color: var(--button-default-background-color);
+  border-color: var(--button-default-border-color);
+}
+
+.buttonDefault:focus {
+  color: var(--button-default-focus-color);
+  background-color: var(--button-default-focus-background-color);
+  border-color: var(--button-default-focus-border-color);
+}
+
+.buttonPrimary {
+  color: var(--button-primary-color);
+  background-color: var(--button-primary-background-color);
+  border-color: var(--button-primary-border-color);
+}
+
+.buttonPrimary:focus {
+  color: var(--button-primary-focus-color);
+  background-color: var(--button-primary-focus-background-color);
+  border-color: var(--button-primary-focus-border-color);
+}
+
+.visuallyHidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.stickyPagination {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  width: 100%;
+  padding-bottom: 1rem;
+}
+
+.thumbWrapper {
+  background: var(--placeholder-bg);
+}
+
+.noResultsHeading {
+  grid-column: 1 / -1;
+}
+
+.thumb {
+  object-fit: cover;
+  aspect-ratio: 1/1;
+  width: 100%;
+}

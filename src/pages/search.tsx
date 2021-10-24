@@ -1,13 +1,14 @@
 import { FC, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import { IMAGES_URL } from 'lib/consts';
 import Template from 'components/template/Template';
-import styles from 'styles/Home.module.css';
+import styles from 'styles/Search.module.css';
 import { NasaSearchData, Fetcher, SearchQuery } from 'lib/types';
 
 interface SearchPageProps {
-  query: { text: string };
+  query: SearchQuery['query'];
   data: NasaSearchData;
 }
 
@@ -24,7 +25,7 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
   const [clientQuery, setClientQuery] = useState(searchQuery);
 
   // Set up for pagination
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(Number(query.page) || 1);
 
   useEffect(() => {
     const fetchData = async ({ queryParam }: Fetcher) => {
@@ -47,46 +48,43 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
     fetchData({ queryParam: searchQuery });
   }, [clientQuery, currentPage]);
 
-  // console.log({ searchQuery, searchData, query });
-
   useEffect(() => {
-    router.push(searchQuery ? `?text=${searchQuery}` : '');
+    router.push(searchQuery ? `?text=${searchQuery}&page=${currentPage}` : '');
     setClientQuery(searchQuery);
-  }, [clientQuery]);
+  }, [clientQuery, currentPage]);
 
   const items = searchData?.collection?.items;
-  console.log({ data, links: data?.collection?.links });
+  console.log({
+    currentPage,
+    test: currentPage + 1,
+    test2: Number(query.page),
+    data,
+    links: data?.collection?.links,
+  });
   return (
     <Template title={data?.title}>
-      {data?.collection && (
-        <>
-          <p>You are currently viewing page {currentPage}</p>
-          <button onClick={() => setCurrentPage(currentPage + 1)}>
-            Next page
-          </button>
-          <button
-            onClick={() =>
-              setCurrentPage(currentPage > 1 ? currentPage - 1 : 1)
-            }
-          >
-            Prev page
-          </button>
-        </>
-      )}
       <form
         onSubmit={(event) => {
           event.preventDefault();
           setClientQuery(searchQuery);
+          setCurrentPage(1);
         }}
       >
-        <input
-          className={styles.input}
-          type="search"
-          onChange={(event) => updateSearchQuery(event.target.value)}
-        />
-        <button className={styles.button} type={'submit'}>
-          Search
-        </button>
+        <label htmlFor={'search'}>
+          <span className={styles.visuallyHidden}>Search</span>
+          <input
+            id={'search'}
+            className={styles.input}
+            type="search"
+            onChange={(event) => updateSearchQuery(event.target.value)}
+          />
+          <button
+            className={classNames(styles.button, styles.buttonPrimary)}
+            type={'submit'}
+          >
+            Search
+          </button>
+        </label>
       </form>
       <section className={styles.results}>
         {items?.length === 0 ? (
@@ -117,18 +115,38 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
           })
         )}
       </section>
+      {data?.collection && items?.length > 0 && (
+        <aside className={styles.stickyPagination}>
+          <p>You are currently viewing page {currentPage}</p>
+          <button
+            className={classNames(styles.button, styles.buttonDefault)}
+            onClick={() =>
+              setCurrentPage(currentPage > 1 ? currentPage - 1 : 1)
+            }
+          >
+            Prev page
+          </button>
+          <button
+            className={classNames(styles.button, styles.buttonDefault)}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            Next page
+          </button>
+        </aside>
+      )}
     </Template>
   );
 };
 
 export const getServerSideProps = async (context: SearchQuery) => {
   const { query } = context;
+  console.log({ query });
   const title = 'Nasa Search';
   if (query.text) {
     try {
       const url = `${IMAGES_URL}/search?&media_type=image&q=${encodeURIComponent(
         query.text
-      )}&page=1`;
+      )}&page=${query.page || 1}`;
       const res = await fetch(url);
       const data = await res.json();
       console.log({ url, data });
@@ -144,16 +162,6 @@ export const getServerSideProps = async (context: SearchQuery) => {
       };
     } catch (error) {
       console.log({ error });
-      return {
-        props: {
-          title,
-          query,
-          error: true,
-          data: {
-            title,
-          },
-        },
-      };
     }
   }
   return {

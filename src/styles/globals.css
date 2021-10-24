@@ -22,5 +22,28 @@ img {
 }
 
 :root {
-  --placeholder-bg: #CCC;
+  /* Colour - No time to create a proper system with naming conventions for colours here :) */
+  --white: #fff;
+  --dark-grey: #333;
+  --mid-grey: #ccc;
+  --some-other-grey: #e6e6e6;
+  --yet-another-different-grey: #8c8c8c;
+  --blue: #286090;
+  --dark-blue: #122b40;
+  --placeholder-bg: var(--mid-grey);
+
+  /* Buttons */
+  --button-default-color: var(--dark-grey);
+  --button-default-border-color: var(--mid-grey);
+  --button-default-background-color: var(--white);
+  --button-default-focus-color: var(--dark-grey);
+  --button-default-focus-background-color: var(--some-other-grey);
+  --button-default-focus-border-color: var(--yet-another-different-grey);
+
+  --button-primary-color: var(--white);
+  --button-primary-border-color: var(--dark-blue);
+  --button-primary-background-color: var(--blue);
+  --button-primary-focus-color: var(--white);
+  --button-primary-focus-background-color: var(--blue);
+  --button-primary-focus-border-color: var(--dark-blue);
 }
