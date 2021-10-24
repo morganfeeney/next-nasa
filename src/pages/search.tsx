@@ -55,6 +55,14 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
 
   const items = searchData?.collection?.items;
 
+  const hasPrevButton = searchData.collection.links?.find(
+    (item) => item.rel === 'prev'
+  );
+
+  const hasNextButton = searchData.collection.links?.find(
+    (item) => item.rel === 'next'
+  );
+
   return (
     <Template title={data?.title}>
       <form
@@ -109,7 +117,7 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
           })
         )}
       </section>
-      {items?.length > 0 && (
+      {items?.length > 0 && (hasPrevButton || hasNextButton) && (
         <aside className={styles.stickyPagination}>
           <p className={styles.paginationHeading}>
             You are currently viewing page {currentPage}
@@ -117,21 +125,15 @@ const Home: FC<SearchPageProps> = ({ data, query }) => {
           <div className={styles.paginationButtonsWrapper}>
             <button
               className={classNames(styles.button, styles.buttonDefault, {
-                [styles.disabled]: !searchData.collection.links?.find(
-                  (item) => item.rel === 'prev'
-                ),
+                [styles.disabled]: !hasPrevButton,
               })}
-              onClick={() =>
-                setCurrentPage(currentPage > 1 ? currentPage - 1 : 1)
-              }
+              onClick={() => setCurrentPage(currentPage - 1)}
             >
               Prev page
             </button>
             <button
               className={classNames(styles.button, styles.buttonDefault, {
-                [styles.disabled]: !searchData.collection.links?.find(
-                  (item) => item.rel === 'next'
-                ),
+                [styles.disabled]: !hasNextButton,
               })}
               onClick={() => setCurrentPage(currentPage + 1)}
             >
